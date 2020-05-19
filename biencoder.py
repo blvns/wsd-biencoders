@@ -363,18 +363,24 @@ def train_model(args):
 	if args.kshot > 0: train_data = filter_k_examples(train_data, args.kshot)
 
 	#dev set = semeval2007
-	semeval2007_path = os.path.join(args.data_path, 'Evaluation_Datasets/semeval2007/')
-	semeval2007_data = load_data(semeval2007_path, 'semeval2007')
+	#as in (Raganato et al., 2017)
+	#semeval2007_path = os.path.join(args.data_path, 'Evaluation_Datasets/semeval2007/')
+	#semeval2007_data = load_data(semeval2007_path, 'semeval2007')
+
+	#dev set = semeval2015
+	#as in (Bevilacqua and Navigli, 2019) and (Bevilacqua and Navigli, 2020)
+	semeval2015_path = os.path.join(args.data_path, 'Evaluation_Datasets/semeval2015/')
+	semeval2015_data = load_data(semeval2007_path, 'semeval2015')
 
 	#load gloss dictionary (all senses from wordnet for each lemma/pos pair that occur in data)
 	wn_path = os.path.join(args.data_path, 'Data_Validation/candidatesWN30.txt')
 	wn_senses = load_wn_senses(wn_path)
 	train_gloss_dict, train_gloss_weights = load_and_preprocess_glosses(train_data, tokenizer, wn_senses, max_len=args.gloss_max_length)
-	semeval2007_gloss_dict, _ = load_and_preprocess_glosses(semeval2007_data, tokenizer, wn_senses, max_len=args.gloss_max_length)
+	semeval2015_gloss_dict, _ = load_and_preprocess_glosses(semeval2015_data, tokenizer, wn_senses, max_len=args.gloss_max_length)
 
 	#preprocess and batch data (context + glosses)
 	train_data = preprocess_context(tokenizer, train_data, bsz=args.context_bsz, max_len=args.context_max_length)
-	semeval2007_data = preprocess_context(tokenizer, semeval2007_data, bsz=1, max_len=args.context_max_length)
+	semeval2015_data = preprocess_context(tokenizer, semeval2015_data, bsz=1, max_len=args.context_max_length)
 
 	epochs = args.epochs
 	overflow_steps = -1
@@ -439,8 +445,8 @@ def train_model(args):
 		#train model for one epoch or given number of training steps
 		model, optimizer, schedule, train_loss = _train(train_data, model, train_gloss_dict, optimizer, schedule, criterion, gloss_bsz=args.gloss_bsz, max_grad_norm=args.grad_norm, silent=args.silent, multigpu=args.multigpu, train_steps=train_steps)
 
-		#eval model on dev set (semeval2007)
-		eval_preds = _eval(semeval2007_data, model, semeval2007_gloss_dict, multigpu=args.multigpu)
+		#eval model on dev set (semeval2015)
+		eval_preds = _eval(semeval2015_data, model, semeval2015_gloss_dict, multigpu=args.multigpu)
 
 		#generate predictions file
 		pred_filepath = os.path.join(args.ckpt, 'tmp_predictions.txt')
