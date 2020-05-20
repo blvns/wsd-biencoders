@@ -18,6 +18,8 @@ import argparse
 from tqdm import tqdm
 import pickle
 from pytorch_transformers import *
+#tensorboard
+from tensorboardX import SummaryWriter
 
 import random
 import numpy as np
@@ -347,6 +349,10 @@ def train_model(args):
 	#create passed in ckpt dir if doesn't exist
 	if not os.path.exists(args.ckpt): os.mkdir(args.ckpt)
 
+	#tensorboard 
+	job_name = [a for a in args.ckpt.split('/') if len(a) > 0][-1]
+	tb_writer = SummaryWriter('runs/{}'.format(job_name))
+
 	'''
 	LOAD PRETRAINED TOKENIZER, TRAIN AND DEV DATA
 	'''
@@ -460,6 +466,9 @@ def train_model(args):
 		_, _, dev_f1 = evaluate_output(scorer_path, gold_filepath, pred_filepath)
 		print('Dev f1 after {} epochs = {}'.format(epoch, dev_f1))
 		sys.stdout.flush() 
+
+		#track perfromance on tensorboard
+		tb_writer.add_scalar('dev_f1', dev_f1, epoch)
 
 		if dev_f1 >= best_dev_f1:
 			print('updating best model at epoch {}...'.format(epoch))
