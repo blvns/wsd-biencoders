@@ -440,7 +440,7 @@ def train_model(args):
 	'''
 
 	best_dev_f1 = 0.
-	print('Training probe...')
+	print('Training model...')
 	sys.stdout.flush()
 
 	for epoch in range(1, epochs+1):
@@ -461,7 +461,8 @@ def train_model(args):
 				f.write('{} {}\n'.format(inst, prediction))
 
 		#run predictions through scorer
-		gold_filepath = os.path.join(args.data_path, 'Evaluation_Datasets/semeval2007/semeval2007.gold.key.txt')
+		#gold_filepath = os.path.join(args.data_path, 'Evaluation_Datasets/semeval2007/semeval2007.gold.key.txt')
+		gold_filepath = os.path.join(args.data_path, 'Evaluation_Datasets/semeval2015/semeval2015.gold.key.txt')
 		scorer_path = os.path.join(args.data_path, 'Evaluation_Datasets')
 		_, _, dev_f1 = evaluate_output(scorer_path, gold_filepath, pred_filepath)
 		print('Dev f1 after {} epochs = {}'.format(epoch, dev_f1))
