@@ -370,7 +370,7 @@ def train_model(args):
 	#dev set = semeval2015
 	#as in (Bevilacqua and Navigli, 2019) and (Bevilacqua and Navigli, 2020)
 	semeval2015_path = os.path.join(args.data_path, 'Evaluation_Datasets/semeval2015/')
-	semeval2015_data = load_data(semeval2007_path, 'semeval2015')
+	semeval2015_data = load_data(semeval2015_path, 'semeval2015')
 
 	#load gloss dictionary (all senses from wordnet for each lemma/pos pair that occur in data)
 	wn_path = os.path.join(args.data_path, 'Data_Validation/candidatesWN30.txt')
